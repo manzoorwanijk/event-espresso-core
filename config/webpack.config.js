@@ -181,6 +181,8 @@ module.exports = function (webpackEnv) {
 			jsonpFunction: `webpackJsonp${appPackageJson.name}`,
 			// this defaults to 'window', but by setting it to 'this' then
 			// module chunks which are built will work in web workers as well.
+			library: ['eventEspresso', '[name]'],
+			libraryExport: 'default',
 			libraryTarget: 'this',
 			globalObject: 'this',
 		},

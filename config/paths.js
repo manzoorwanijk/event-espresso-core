@@ -68,6 +68,7 @@ module.exports = {
 	proxySetup: resolveApp('src/setupProxy.js'),
 	publicUrlOrPath,
 	entries: {
+		'application': resolveModule(resolveApp, ASSETS_SOURCE_FOLDER + `/application/index`),
 		'eventespresso-blocks': resolveModule(resolveApp, ASSETS_SOURCE_FOLDER + `/domain/blocks/index`),
 		'eventespresso-core-app': resolveModule(resolveApp, ASSETS_SOURCE_FOLDER + `/domain/index`),
 	},
