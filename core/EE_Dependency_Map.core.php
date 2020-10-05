@@ -744,6 +744,12 @@ class EE_Dependency_Map
                 'EventEspresso\core\services\assets\AssetManifestFactory' => EE_Dependency_Map::load_from_cache,
                 'EventEspresso\core\services\loaders\Loader' => EE_Dependency_Map::load_from_cache,
             ],
+            'EventEspresso\core\services\addon\AddonManager' => [
+                'EventEspresso\core\services\addon\api\legacy\AddonCollection' => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\addon\api\legacy\AddonRegistrar'  => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\addon\api\v1\AddonCollection'     => EE_Dependency_Map::load_from_cache,
+                'EventEspresso\core\services\addon\api\v1\AddonRegistrar'      => EE_Dependency_Map::load_from_cache,
+            ],
         ];
     }
 
