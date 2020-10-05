@@ -2,9 +2,6 @@
 
 use EventEspresso\core\domain\Domain;
 use EventEspresso\core\domain\DomainFactory;
-use EventEspresso\core\domain\values\FilePath;
-use EventEspresso\core\domain\values\FullyQualifiedName;
-use EventEspresso\core\domain\values\Version;
 use EventEspresso\core\exceptions\ExceptionStackTraceDisplay;
 use EventEspresso\core\exceptions\InvalidClassException;
 use EventEspresso\core\exceptions\InvalidDataTypeException;
@@ -230,7 +227,6 @@ final class EE_System implements ResettableInterface
             'AHEE__EE_Bootstrap__load_core_configuration',
             array($this, 'loadRouteMatchSpecifications')
         );
-        // load EE_Config, EE_Textdomain, etc
         add_action(
             'AHEE__EE_Bootstrap__register_shortcodes_modules_and_widgets',
             array($this, 'register_shortcodes_modules_and_widgets'),
@@ -299,64 +295,17 @@ final class EE_System implements ResettableInterface
 
     /**
      * @return void
-     * @throws EE_Error
      */
     public function loadPluginApi()
     {
-        // set autoloaders for all of the classes implementing EEI_Plugin_API
-        // which provide helpers for EE plugin authors to more easily register certain components with EE.
-        EEH_Autoloader::register_autoloaders_for_each_file_in_folder(EE_LIBRARIES . 'plugin_api');
+        $this->loader->getShared('EventEspresso\core\services\addon\AddonManager');
         $this->loader->getShared('EE_Request_Handler');
     }
 
 
     /**
-     * @param string $addon_name
-     * @param string $version_constant
-     * @param string $min_version_required
-     * @param string $load_callback
-     * @param string $plugin_file_constant
-     * @return void
-     */
-    private function deactivateIncompatibleAddon(
-        $addon_name,
-        $version_constant,
-        $min_version_required,
-        $load_callback,
-        $plugin_file_constant
-    ) {
-        if (! defined($version_constant)) {
-            return;
-        }
-        $addon_version = constant($version_constant);
-        if ($addon_version && version_compare($addon_version, $min_version_required, '<')) {
-            remove_action('AHEE__EE_System__load_espresso_addons', $load_callback);
-            if (! function_exists('deactivate_plugins')) {
-                require_once ABSPATH . 'wp-admin/includes/plugin.php';
-            }
-            deactivate_plugins(plugin_basename(constant($plugin_file_constant)));
-            unset($_GET['activate'], $_REQUEST['activate'], $_GET['activate-multi'], $_REQUEST['activate-multi']);
-            EE_Error::add_error(
-                sprintf(
-                    esc_html__(
-                        'We\'re sorry, but the Event Espresso %1$s addon was deactivated because version %2$s or higher is required with this version of Event Espresso core.',
-                        'event_espresso'
-                    ),
-                    $addon_name,
-                    $min_version_required
-                ),
-                __FILE__,
-                __FUNCTION__ . "({$addon_name})",
-                __LINE__
-            );
-            EE_Error::get_notices(false, true);
-        }
-    }
-
-
-    /**
      * load_espresso_addons
-     * allow addons to load first so that they can set hooks for running DMS's, etc
+     * allow addons to load first so that they can set hooks for running DMSs, etc
      * this is hooked into both:
      *    'AHEE__EE_Bootstrap__load_core_configuration'
      *        which runs during the WP 'plugins_loaded' action at priority 5
@@ -367,20 +316,6 @@ final class EE_System implements ResettableInterface
      */
     public function load_espresso_addons()
     {
-        $this->deactivateIncompatibleAddon(
-            'Wait Lists',
-            'EE_WAIT_LISTS_VERSION',
-            '1.0.0.beta.074',
-            'load_espresso_wait_lists',
-            'EE_WAIT_LISTS_PLUGIN_FILE'
-        );
-        $this->deactivateIncompatibleAddon(
-            'Automated Upcoming Event Notifications',
-            'EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_VERSION',
-            '1.0.0.beta.091',
-            'load_espresso_automated_upcoming_event_notification',
-            'EE_AUTOMATED_UPCOMING_EVENT_NOTIFICATION_PLUGIN_FILE'
-        );
         do_action('AHEE__EE_System__load_espresso_addons');
         // if the WP API basic auth plugin isn't already loaded, load it now.
         // We want it for mobile apps. Just include the entire plugin
