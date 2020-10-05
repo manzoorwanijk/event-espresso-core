@@ -1041,9 +1041,7 @@ class EE_Register_Addon implements EEI_Plugin_API
             $addon->setDependencyMap($loader->getShared('EE_Dependency_Map'));
         }
         // setter inject domain if required
-        if ($addon instanceof RequiresDomainInterface
-            && $addon->domain() === null
-        ) {
+        if ($addon instanceof RequiresDomainInterface && $addon->domain() === null) {
             // using supplied Domain object
             $domain = self::$_settings[ $addon_name ]['domain'] instanceof DomainInterface
                 ? self::$_settings[ $addon_name ]['domain']

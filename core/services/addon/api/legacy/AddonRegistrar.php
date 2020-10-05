@@ -23,11 +23,6 @@ class AddonRegistrar
 
 
     /**
-     * @param string $addon_name
-     * @param string $version_constant
-     * @param string $min_version_required
-     * @param string $load_callback
-     * @param string $plugin_file_constant
      * @return void
      */
     public function deactivateIncompatibleAddons()
@@ -91,6 +86,4 @@ class AddonRegistrar
             EE_Error::get_notices(false, true);
         }
     }
-
-
 }
