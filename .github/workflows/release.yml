@@ -39,12 +39,11 @@ jobs:
                   commit_message: Bump the version to ${{ steps.bump-version.outputs.new-version }}
                   push_options: --force # required for protected branches
 
-            - name: Replace $VID:$ in PHP files
+            - name: Replace $VID:$ in all files
               uses: bejoistic/str-replace@master
               with:
                   find: '$VID:$'
                   replace: ${{ steps.bump-version.outputs.new-version }}
-                  include: '.*\.php|CHANGELOG\.md$'
 
             - name: Commit the replaced $VID:$
               uses: stefanzweifel/git-auto-commit-action@v4
