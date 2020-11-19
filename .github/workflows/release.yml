@@ -9,9 +9,9 @@ on:
             release-type:
                 description: 'Type of release - alpha, beta, decaf, rc, p'
                 default: 'p'
-            branch:
-                description: 'The branch to create the release from'
-                default: 'master'
+            release-notes:
+                description: 'Release notes'
+                type: 'textarea'
 jobs:
     release:
         name: New release
@@ -20,7 +20,6 @@ jobs:
             - name: Checkout the branch
               uses: actions/checkout@v2
               with:
-                  ref: ${{ github.event.inputs.branch }}
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Bump version
