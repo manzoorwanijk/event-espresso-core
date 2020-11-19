@@ -1,0 +1,63 @@
+name: Create a release
+on:
+    workflow_dispatch:
+        inputs:
+            type:
+                description: 'Bump type - major, minor, patch, build'
+                required: true
+                default: 'minor'
+            release-type:
+                description: 'Type of release - alpha, beta, decaf, rc, p'
+                default: 'p'
+            branch:
+                description: 'The branch to create the release from'
+                default: 'master'
+jobs:
+    release:
+        name: New release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout the branch
+              uses: actions/checkout@v2
+              with:
+                  ref: ${{ github.event.inputs.branch }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Bump version
+              id: bump-version
+              uses: eventespresso/actions/packages/version-bump@main
+              with:
+                  type: ${{ github.event.inputs.type }}
+                  main-file: espresso.php
+                  readme-file: readme.txt
+                  info-json-file: info.json
+                  release-type: ${{ github.event.inputs.release-type }}
+
+            - name: Commit version bump
+              uses: stefanzweifel/git-auto-commit-action@v4
+              with:
+                  commit_message: Bump the version to ${{ steps.bump-version.outputs.new-version }}
+                  push_options: --force # required for protected branches
+
+            - name: Replace $VID:$ in PHP files
+              uses: bejoistic/str-replace@master
+              with:
+                  find: '$VID:$'
+                  replace: ${{ steps.bump-version.outputs.new-version }}
+                  include: '*.php|CHANGELOG.md'
+
+            - name: Commit the replaced $VID:$
+              uses: stefanzweifel/git-auto-commit-action@v4
+              with:
+                  commit_message: Replace $VID:$ with ${{ steps.bump-version.outputs.new-version }}
+                  push_options: --force # required for protected branches
+
+            - name: Create Release
+              id: create-release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ steps.bump-version.outputs.new-version }}
+                  release_name: Release ${{ steps.bump-version.outputs.new-version }}
+                  body: 'test'
