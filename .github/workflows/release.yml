@@ -97,6 +97,7 @@ jobs:
             - name: Commit after cleanup
               uses: stefanzweifel/git-auto-commit-action@v4
               with:
+                  branch: release # required to make sure the branch is pushed upstream
                   commit_message: Clean up for (sans tests) release - ${{ steps.bump-version.outputs.new-version }}
                   push_options: --force # required for protected branches
 
